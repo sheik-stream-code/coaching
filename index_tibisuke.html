@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>格ゲー日報・振り返り送信（受講者B）</title>
+    <style>
+        body { background-color: #313338; color: #dbdee1; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background-color: #2b2d31; padding: 30px; border-radius: 8px; width: 400px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        h2 { color: #f2f3f5; margin-top: 0; font-size: 20px; }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 14px; }
+        input, textarea { width: 100%; padding: 10px; margin-top: 5px; background-color: #1e1f22; border: 1px solid #383a40; border-radius: 4px; color: #fff; box-sizing: border-box; }
+        textarea { height: 80px; resize: vertical; }
+        button { width: 100%; margin-top: 20px; padding: 12px; background-color: #5865f2; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        button:hover { background-color: #4752c4; }
+        .success { color: #57f287; text-align: center; display: none; margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>✏️ 本日の日報・振り返り送信</h2>
+        <form id="reportForm">
+            <!-- ★受講者Bの識別子を隠しデータとして持たせる -->
+            <input type="hidden" id="student_id" value="student_b">
+
+            <label>取り組んだ課題</label>
+            <input type="text" id="task" placeholder="例：コンボ練習、ルーク筋トレ、ランクマ" required>
+            
+            <label>今日の振り返り・気づき</label>
+            <textarea id="reflection" placeholder="例：動きが固まらず技を振れた！" required></textarea>
+            
+            <label>見てほしいリプレイID (任意)</label>
+            <input type="text" id="replay" placeholder="例：8EP4MB9TR">
+            
+            <button type="submit" id="submitBtn">Discordへ送信する</button>
+            <div id="successMsg" class="success">送信が完了しました！ブラウザを閉じてください。</div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('reportForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = "送信中...";
+
+            const data = {
+                student_id: document.getElementById('student_id').value, // ★誰からかを送る
+                task: document.getElementById('task').value,
+                reflection: document.getElementById('reflection').value,
+                replay: document.getElementById('replay').value || "なし"
+            };
+
+            try {
+                // 既存と同じMakeのWebhook URLを使用します
+                const webhookUrl = "https://hook.us2.make.com/459cy58uhcsv96vf5qh9pwpw8lwirjcb";
+                
+                await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                document.getElementById('reportForm').reset();
+                btn.style.display = "none";
+                document.getElementById('successMsg').style.display = "block";
+            } catch (err) {
+                alert("送信に失敗しました。");
+                btn.disabled = false;
+                btn.textContent = "Discordへ送信する";
+            }
+        });
+    </script>
+</body>
+</html>
